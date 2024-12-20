@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
-from markupsafe import escape
+from markupsafe import escape  # Helps prevent XSS by escaping user input
 import sqlite3
 from flask_wtf import FlaskForm
 from wtforms import StringField
@@ -7,8 +7,8 @@ from wtforms.validators import DataRequired, Email, Length
 from werkzeug.exceptions import BadRequest
 import subprocess
 import requests
-from flask_talisman import Talisman
-from flask_limiter import Limiter
+from flask_talisman import Talisman  # Adds security headers to protect against various attacks
+from flask_limiter import Limiter  # Rate limiting to prevent abuse
 from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
@@ -61,12 +61,13 @@ def add_user():
     """
     form = UserForm()
     if form.validate_on_submit():
-        name = escape(form.name.data)
-        email = escape(form.email.data)
+        name = escape(form.name.data)  # Escape user input to prevent XSS
+        email = escape(form.email.data)  # Escape user input to prevent XSS
 
         conn = sqlite3.connect("secure_app.db")
         cursor = conn.cursor()
         try:
+            # Use parameterized queries to protect against SQL injection
             cursor.execute("INSERT INTO users (name, email) VALUES (?, ?)", (name, email))
             conn.commit()
             flash("User added successfully!", "success")
@@ -87,7 +88,7 @@ def search_user():
     Searches for users in the database based on the query string.
     Displays matching results in the search template.
     """
-    search_query = escape(request.args.get("query", "")).strip()
+    search_query = escape(request.args.get("query", "")).strip()  # Escape user input to prevent XSS
     results = []
 
     if search_query:
@@ -131,7 +132,7 @@ def fetch_secure():
     """
     url = request.args.get("url")
     if not url or not url.startswith("https://"):
-        raise BadRequest("Invalid or insecure URL")
+        raise BadRequest("Invalid or insecure URL")  # Ensure URL is secure (HTTPS)
 
     try:
         response = requests.get(url, verify=True, timeout=5)
@@ -156,11 +157,10 @@ def set_security_headers(response):
 
 if __name__ == "__main__":
     init_db()
-
-    # Uncomment the following lines for HTTPS
+    
     # import ssl
     # context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     # context.load_cert_chain("cert.pem", "key.pem")  # Provide your SSL certificate and key files
-    # app.run(ssl_context=context)
+    # app.run(ssl_context=context)  # Use HTTPS to protect against MITM attacks
 
     app.run(debug=True)

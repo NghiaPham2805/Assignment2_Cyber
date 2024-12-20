@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Add User</h1>
+    </header>
+    <main>
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Render Flask-WTF Form -->
+        <form method="post">
+            {{ form.hidden_tag() }} <!-- CSRF Token -->
+            <div>
+                <label for="name">Name</label>
+                {{ form.name(class="form-control") }}
+                {% for error in form.name.errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label for="email">Email</label>
+                {{ form.email(class="form-control") }}
+                {% for error in form.email.errors %}
+                    <p class="error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <button type="submit">Add User</button>
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2024 Secure App</p>
+    </footer>
+</body>
+</html>

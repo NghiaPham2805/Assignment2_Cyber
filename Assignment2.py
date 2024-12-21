@@ -29,9 +29,7 @@ limiter = Limiter(
 
 # Database Setup
 def init_db():
-    """
-    Initializes the database with a secure schema.
-    """
+    
     conn = sqlite3.connect("secure_app.db")
     cursor = conn.cursor()
     cursor.execute("""
@@ -56,9 +54,7 @@ class UserForm(FlaskForm):
 @app.route("/add_user", methods=["GET", "POST"])
 @limiter.limit("10 per minute")
 def add_user():
-    """
-    Displays and processes the user form.
-    """
+    
     form = UserForm()
     if form.validate_on_submit():
         name = escape(form.name.data)  # Escape user input to prevent XSS
@@ -84,10 +80,7 @@ def add_user():
 @app.route("/search_user", methods=["GET"])
 @limiter.limit("5 per minute")
 def search_user():
-    """
-    Searches for users in the database based on the query string.
-    Displays matching results in the search template.
-    """
+
     search_query = escape(request.args.get("query", "")).strip()  # Escape user input to prevent XSS
     results = []
 
@@ -127,9 +120,7 @@ def execute_command():
 @app.route("/fetch_secure", methods=["GET"])
 @limiter.limit("5 per minute")
 def fetch_secure():
-    """
-    Fetches data securely from external URLs.
-    """
+    
     url = request.args.get("url")
     if not url or not url.startswith("https://"):
         raise BadRequest("Invalid or insecure URL")  # Ensure URL is secure (HTTPS)
@@ -145,9 +136,7 @@ def fetch_secure():
 # Security Headers
 @app.after_request
 def set_security_headers(response):
-    """
-    Adds secure HTTP headers to responses.
-    """
+
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Content-Security-Policy"] = "default-src 'self';"
     response.headers["X-Content-Type-Options"] = "nosniff"
